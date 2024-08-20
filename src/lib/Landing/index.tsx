@@ -31,7 +31,7 @@ function Welcome() {
                   <span className="text-[#020202]">
                     {" "}
                     Let Everyone
-                    <span className="text-[#D82B3C]">in-</span>
+                    <span className="text-[#D82B3C]"> in</span>-
                     <br />
                     the{" "}
                   </span>{" "}

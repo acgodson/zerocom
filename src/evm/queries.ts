@@ -75,6 +75,32 @@ export async function getContractIdFromEvmAddress(evmAddress: string) {
   }
 }
 
+export async function getAccountIdFromEvmAddress(evmAddress: string) {
+  const baseUrl = "https://testnet.mirrornode.hedera.com/api/v1/accounts";
+  const url = `${baseUrl}/${evmAddress}`;
+
+  try {
+    const response = await fetch(url);
+
+    // Handle any non-200 HTTP responses
+    if (!response.ok) {
+      throw new Error(
+        `Error fetching data: ${response.status} ${response.statusText}`
+      );
+    }
+    const data = await response.json();
+    // Check if the contract_id is available in the response
+    if (data.account) {
+      return data.account;
+    } else {
+      throw new Error("Contract ID not found in the response");
+    }
+  } catch (error: any) {
+    console.error("Failed to fetch contract ID:", error.message);
+    return null;
+  }
+}
+
 // tokenId,
 // accountId,
 // agentId,

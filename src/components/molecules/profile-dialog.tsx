@@ -15,10 +15,12 @@ import {
   ModalHeader,
   ModalOverlay,
   HStack,
+  VStack,
 } from "@chakra-ui/react";
 import { usePrivy } from "@privy-io/react-auth";
+import { ExternalLink } from "lucide-react";
 import { useAccount } from "wagmi";
-import { getContractIdFromEvmAddress } from "../../evm/queries";
+import { getAccountIdFromEvmAddress } from "../../evm/queries";
 import { useWallets } from "@privy-io/react-auth";
 
 import BearAvatar from "../atoms/bear-avatar";
@@ -33,7 +35,7 @@ export default function ProfileDialog() {
   const [id, setId] = useState<string | null>(null);
 
   const fetchId = async (addr: string) => {
-    const x = await getContractIdFromEvmAddress(addr);
+    const x = await getAccountIdFromEvmAddress(addr);
     if (x) {
       setId(x);
     } else {
@@ -42,10 +44,10 @@ export default function ProfileDialog() {
   };
 
   useEffect(() => {
-    if (user && wallets && !id) {
+    if (wallets && wallets.length > 0 && !id) {
       fetchId(wallets[0].address);
     }
-  }, [user, wallets, id, ]);
+  }, [user, wallets, id]);
 
   return (
     <>
@@ -62,12 +64,12 @@ export default function ProfileDialog() {
         <ModalContent>
           <ModalHeader>
             Profile
-            <Text fontSize="sm">Overview</Text>
+            <Text color="#333">Overview</Text>
           </ModalHeader>
-          <ModalCloseButton />
+          <ModalCloseButton className="text-[#333]" />
 
           <ModalBody>
-            <Flex direction="column" gap="4">
+            <Flex direction="column" color="#333" gap="4">
               <Box p="4" bg="gray.200" rounded="md">
                 <Flex align="center" gap="3">
                   {/* Replace BearAvatar with your Avatar component */}
@@ -85,12 +87,12 @@ export default function ProfileDialog() {
                             <Text textAlign="center" fontWeight="bold">
                               {account.email}
                             </Text>
-                            <Flex mt="2" justify="space-between">
+                            {/* <Flex mt="2" justify="space-between">
                               <Text fontSize="sm">Joined since:</Text>
                               <Text fontSize="sm">
                                 {account.firstVerifiedAt?.toDateString()}
                               </Text>
-                            </Flex>
+                            </Flex> */}
                           </Box>
                         ))}
                   </Box>
@@ -106,19 +108,48 @@ export default function ProfileDialog() {
 
               <Input
                 isReadOnly
-                value={address ? shortenAddress(address) : ""}
+                color={"#333"}
+                fontSize={"xs"}
+                value={address ? address : ""}
                 variant="filled"
                 placeholder="EVM Address"
               />
             </Flex>
 
-            <HStack>
-              <Button>Top Up</Button>
-              <Button rightIcon=<></>>Get ℏ HBar</Button>
-            </HStack>
+            <VStack mt={8} color="#333" w="100%">
+              {/* <Text fontSize={"xs"}> Balance</Text> */}
+
+              <Flex
+                w="100%"
+                alignItems={"center"}
+                justifyContent={"space-between"}
+              >
+                <Text fontSize={"sm"}>
+                  {" "}
+                  My Agent:<b> 0.00 tUSDC</b>
+                </Text>
+                <Button w="160px" className="bg-zinc-900 text-white" py={4}>
+                  Top Up
+                </Button>
+              </Flex>
+              <Box px={3} mt={4} color="#333">
+                <Divider />
+              </Box>
+
+              <Flex
+                w="100%"
+                alignItems={"center"}
+                justifyContent={"space-between"}
+              >
+                <Text fontSize={"sm"}>{/* ℏ: <b> 0.00</b>{" "} */}</Text>
+                <Button w="160px" py={4} rightIcon={<ExternalLink />}>
+                  ℏ Faucet
+                </Button>
+              </Flex>
+            </VStack>
           </ModalBody>
 
-          <ModalFooter>
+          <ModalFooter >
             <Button colorScheme="red" onClick={handleLogout}>
               Log out
             </Button>

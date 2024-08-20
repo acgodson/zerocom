@@ -16,7 +16,7 @@ import { Contract } from "@ethersproject/contracts";
 
 import { useDropzone } from "react-dropzone";
 import { useDBManager } from "@/rpc";
-import { getAddress } from "viem";
+import { getAddress, toBytes, toHex } from "viem";
 import { useWallets } from "@privy-io/react-auth";
 
 function NewAgent({ toggleHome }: { toggleHome: () => void }) {
@@ -67,28 +67,43 @@ function NewAgent({ toggleHome }: { toggleHome: () => void }) {
       console.log("no token found");
       return;
     }
+    const ipns = await createIndex(agentAddr, token);
+    if (ipns) {
+      let headersList = {
+        "Content-Type": "application/json",
+      };
 
-    const index = await createIndex(agentAddr, token);
+      let bodyContent = JSON.stringify({
+        id: ipns.ipnsId,
+        name: ipns.ipnsName,
+      });
 
-    if (index) {
-      console.log(index);
+      let response = await fetch("http://localhost:3000/api/ipns", {
+        method: "POST",
+        body: bodyContent,
+        headers: headersList,
+      });
 
-      const wallet = wallets[0];
-      const provider = await wallet.getEthersProvider();
-      const AgentContract = new Contract(
-        agentAddr,
-        agentABI,
-        provider.getSigner()
-      );
-      // agent Intitialize
-      let initAgent = await AgentContract.functions.initializeAgent(
-        token,
-        index
-      );
-      let initAgentTxn = await initAgent.wait();
-      let initAgentTxnHash = initAgentTxn.transactionHash;
-      console.log(`\n- Transfer status: ${initAgentTxn.status}`);
-      console.log(`- https://hashscan.io/testnet/tx/${initAgentTxnHash}\n`);
+      let data = await response.json();
+      if (data) {
+        const id = data.id;
+        const wallet = wallets[0];
+        const provider = await wallet.getEthersProvider();
+        const AgentContract = new Contract(
+          agentAddr,
+          agentABI,
+          provider.getSigner()
+        );
+        console.log(toHex(id, { size: 32 }));
+        // agent Intitialize
+        let initAgent = await AgentContract.functions.initializeAgent(
+          token,
+          toHex(id, { size: 32 })
+        );
+        let initAgentTxn = await initAgent.wait();
+        let initAgentTxnHash = initAgentTxn.transactionHash;
+        console.log(`- https://hashscan.io/testnet/tx/${initAgentTxnHash}\n`);
+      }
     }
   };
 

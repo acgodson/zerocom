@@ -74,9 +74,10 @@ export const useDBManager = () => {
       );
     }
 
-    const ipnsAddress = keyResponse.data.ipnsName;
+    const ipnsAddress = keyResponse.data.ipnsId;
 
-    return ipnsAddress;
+    console.log("cc: ", keyResponse.data.ipnsId);
+    return keyResponse.data;
 
     // const provider = await wallet.getEthereumProvider();
     // const data = encodeFunctionData({
