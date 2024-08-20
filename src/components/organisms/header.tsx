@@ -43,8 +43,10 @@ const Header = ({ className }: { className?: string }) => {
           className="mt-5 rounded-full opacity-100"
           alt="zercom-logo"
           src={"/vercel.svg"}
-          width={80}
-          height={80}
+          style={{
+            width: "auto",
+            height: "60px",
+          }}
         />
       </a>
 
