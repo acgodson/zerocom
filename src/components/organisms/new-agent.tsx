@@ -11,21 +11,27 @@ import {
   Button,
   Box,
 } from "@chakra-ui/react";
+import agentABI from "../../evm/agent.json";
+import { Contract } from "@ethersproject/contracts";
 
 import { useDropzone } from "react-dropzone";
+import { useDBManager } from "@/rpc";
+import { getAddress } from "viem";
+import { useWallets } from "@privy-io/react-auth";
 
 function NewAgent({ toggleHome }: { toggleHome: () => void }) {
   // Local State
   const [title, setTitle] = useState("");
   const [descripiton, setDescription] = useState("");
-  const [instructions, setInstructions] = useState("");
   const [file, setFile] = useState(null);
-  const [parsedContent, setParsedContent] = useState(null);
+  // const [parsedContent, setParsedContent] = useState(null);
   const [JSONContent, setJSONContent] = useState<any | null>(null);
 
   const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const toggleModal = () => setIsModalOpen(!isModalOpen);
+  const { wallets } = useWallets();
+  const { createIndex } = useDBManager();
 
   const onDrop = useCallback((acceptedFiles: any) => {
     const file = acceptedFiles[0];
@@ -55,20 +61,63 @@ function NewAgent({ toggleHome }: { toggleHome: () => void }) {
     },
   });
 
-  const handleSubmit = () => {};
+  const initializeAgent = async (agentAddr: `0x${string}`) => {
+    const token = process.env.NEXT_PUBLIC_TEST_TOKEN_ADDRESS as `0x${string}`;
+    if (!token) {
+      console.log("no token found");
+      return;
+    }
+
+    const index = await createIndex(agentAddr, token);
+
+    if (index) {
+      console.log(index);
+
+      const wallet = wallets[0];
+      const provider = await wallet.getEthersProvider();
+      const AgentContract = new Contract(
+        agentAddr,
+        agentABI,
+        provider.getSigner()
+      );
+      // agent Intitialize
+      let initAgent = await AgentContract.functions.initializeAgent(
+        token,
+        index
+      );
+      let initAgentTxn = await initAgent.wait();
+      let initAgentTxnHash = initAgentTxn.transactionHash;
+      console.log(`\n- Transfer status: ${initAgentTxn.status}`);
+      console.log(`- https://hashscan.io/testnet/tx/${initAgentTxnHash}\n`);
+    }
+  };
+
+  const handleSubmit = async () => {
+    setLoading(true);
+    try {
+      await initializeAgent(
+        getAddress("0xf7B6132102eE614104ef9dF2A2509B059E32b5F6")
+      );
+    } catch (e) {
+      console.log(e);
+      setLoading(false);
+    }
+    setLoading(false);
+  };
 
   return (
     <>
       <div className="w-full md:w-2/3">
-        <div className="flex gap-3 w-full align-middle">
+        <div className="flex gap-3 w-full align-middle items-center">
           <IconButton
             variant="soft"
-            className="cursor-pointer py-2"
+            className="cursor-pointer py-0"
             onClick={toggleHome}
             aria-label={""}
           >
             <ArrowLeft />
           </IconButton>
+
           <Text fontWeight="bold" size="3" className="">
             Add New Document
           </Text>
@@ -102,21 +151,27 @@ function NewAgent({ toggleHome }: { toggleHome: () => void }) {
           </Flex>
         </Card>
 
-        <Card className="mt-8"  boxShadow={"xs"}>
+        <Card className="mt-8" boxShadow={"xs"}>
           <Flex direction={"column"} gap={"2"} className="w-full">
             <label>
-              <div className="flex w-full align-middle justify-between mb-3">
+              <Box
+                px={3}
+                py={2}
+                className="flex w-full align-middle justify-between mb-3"
+              >
                 <Text as="div" size="2" mb="1" fontWeight="bold">
                   Content
                 </Text>
                 <Button
                   variant="soft"
                   className="cursor-pointer py-2"
-                  size={"1"}
+                  size={"2"}
+                  bg="#e3e3f2"
+                  px={3}
                 >
                   Download Template
                 </Button>
-              </div>
+              </Box>
 
               <div className="relative w-full min-h-28 cursor-pointer">
                 {!JSONContent ? (
@@ -163,7 +218,15 @@ function NewAgent({ toggleHome }: { toggleHome: () => void }) {
         <Button
           onClick={handleSubmit}
           className="float-right mt-4 cursor-pointer"
-          size={"3"}
+          borderRadius={"30px"}
+          bgGradient="linear(to-r, #D82B3C, #17101C)"
+          color="white"
+          _hover={{
+            bgGradient: "linear(to-r, #17101C, #D82B3C)",
+          }}
+          size={"2"}
+          py={4}
+          px={4}
         >
           {loading ? (
             <Loader className="animate-spin" />

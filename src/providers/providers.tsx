@@ -5,7 +5,7 @@ import { WagmiProvider } from "@privy-io/wagmi";
 import { PrivyClientConfig, PrivyProvider } from "@privy-io/react-auth";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ChakraProviders } from "./chakra";
-
+import { Erc4337Provider } from "@/evm/EthContext";
 
 const queryClient = new QueryClient();
 
@@ -17,7 +17,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
     >
       <QueryClientProvider client={queryClient}>
         <ChakraProviders>
-          <WagmiProvider config={wagmiConfig}>{children}</WagmiProvider>
+          <WagmiProvider config={wagmiConfig}>
+            <Erc4337Provider>{children}</Erc4337Provider>
+          </WagmiProvider>
         </ChakraProviders>
       </QueryClientProvider>
     </PrivyProvider>

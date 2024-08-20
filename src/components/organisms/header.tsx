@@ -4,12 +4,13 @@ import { useMemo, useState } from "react";
 import BearAvatar from "../atoms/bear-avatar";
 import { shortenAddress } from "../../utils";
 import { useAccount } from "wagmi";
+import ProfileDialog from "../molecules/profile-dialog";
+import { useEthContext } from "@/evm/EthContext";
 
 const Header = ({ className }: { className?: string }) => {
   const [segment, setSegments] = useState<number>(0);
   const { address } = useAccount();
-  const toggleAccountModal = () => {};
-
+  const { toggleAccountModal } = useEthContext();
   // const navs = useMemo(
   //   () => [
   //     {
@@ -67,6 +68,8 @@ const Header = ({ className }: { className?: string }) => {
           {shortenAddress(address)}
         </Button>
       )}
+
+      <ProfileDialog />
     </div>
   );
 };

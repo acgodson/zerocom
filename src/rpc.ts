@@ -8,19 +8,20 @@ import {
   createPublicClient,
   encodeFunctionData,
   fromHex,
+  getAddress,
   getContract,
   http,
 } from "viem";
 
 import { hederaTestnet } from "viem/chains";
-// import controllerABI from "./evm/controller.json";
+import controllerABI from "./evm/controller.json";
 import agentABI from "./evm/agent.json";
 import { useWallets } from "@privy-io/react-auth";
 
-const lighthouseKey = process.env.LIGHTHOUSE_KEY as string;
+const lighthouseKey = process.env.NEXT_PUBLIC_LIGHTHOUSE_API_KEY as string;
 
-export const useDBManager = (initialCollectionId: `0x${string}`) => {
-  const [collectionId, setCollectionId] = useState(initialCollectionId);
+export const useDBManager = () => {
+  const [collectionId, setCollectionId] = useState<`0x${string}` | null>(null);
   const { wallets } = useWallets();
   const wallet = wallets[0];
   // Public client for read-only operations
@@ -29,19 +30,23 @@ export const useDBManager = (initialCollectionId: `0x${string}`) => {
     transport: http(),
   });
 
-  //   const initializeWalletClient = async () => {
-  //     const provider = await wallet.getEthereumProvider();
-  //     return createWalletClient({
-  //       chain: hederaTestnet,
-  //       transport: custom(provider),
-  //     });
-  //   };
+  const init = async (controllerAddress: `0x${string}`) => {
+    const contract = getContract({
+      address: getAddress(controllerAddress),
+      abi: controllerABI,
+      client: publicClient,
+    });
 
-  const initIndex = async (
+    const x = await contract.read.getUserAgent([wallet.address]);
+    if (x) {
+      console.log(x);
+      return x;
+    }
+  };
+
+  const createIndex = async (
     initialCollectionId: `0x${string}`,
-    controllerAddress: `0x${string}`,
-    tokenAddress: `0x${string}`,
-    initialCap: number
+    tokenAddress: string
   ) => {
     // create index on lightHouse and save bytes32 in the contract
 
@@ -68,26 +73,29 @@ export const useDBManager = (initialCollectionId: `0x${string}`) => {
         lighthouseKey
       );
     }
+
     const ipnsAddress = keyResponse.data.ipnsName;
-    keyResponse.data.ipnsName;
-    const provider = await wallet.getEthereumProvider();
-    const data = encodeFunctionData({
-      abi: agentABI,
-      functionName: "initializeAgent",
-      args: [controllerAddress, tokenAddress, ipnsAddress, initialCap],
-    });
 
-    const txn = {
-      data,
-      to: initialCollectionId,
-      from: wallet.address,
-    };
+    return ipnsAddress;
 
-    const result = await provider.request({
-      method: "eth_sendTransaction",
-      params: [txn],
-    });
-    console.log(result);
+    // const provider = await wallet.getEthereumProvider();
+    // const data = encodeFunctionData({
+    //   abi: agentABI,
+    //   functionName: "initializeAgent",
+    //   args: [tokenAddress, ipnsAddress],
+    // });
+
+    // const txn = {
+    //   data,
+    //   to: initialCollectionId,
+    //   from: wallet.address,
+    // };
+
+    // const result = await provider.request({
+    //   method: "eth_sendTransaction",
+    //   params: [txn],
+    // });
+    // console.log(result);
   };
 
   const AddDocument = async (title: string, content: string) => {
@@ -146,6 +154,7 @@ export const useDBManager = (initialCollectionId: `0x${string}`) => {
   };
 
   const getMetadataList = async () => {
+    if (!collectionId) throw new Error("Sign in required");
     const contract = getContract({
       address: collectionId,
       abi: agentABI,
@@ -174,6 +183,7 @@ export const useDBManager = (initialCollectionId: `0x${string}`) => {
   };
 
   const getMetadata = async (documentId: string) => {
+    if (!collectionId) throw new Error("Sign in required");
     const contract = getContract({
       address: collectionId,
       abi: agentABI,
@@ -188,6 +198,7 @@ export const useDBManager = (initialCollectionId: `0x${string}`) => {
   };
 
   const documentIDToTitle = async (documentId: string) => {
+    if (!collectionId) throw new Error("Sign in required");
     // Logic to map a document ID to its title
     const contract = getContract({
       address: collectionId,
@@ -199,6 +210,7 @@ export const useDBManager = (initialCollectionId: `0x${string}`) => {
   };
 
   const titleToDocumentID = async (title: string) => {
+    if (!collectionId) throw new Error("Sign in required");
     // Logic to map a title to its document ID
     const contract = getContract({
       address: collectionId,
@@ -236,7 +248,8 @@ export const useDBManager = (initialCollectionId: `0x${string}`) => {
   return {
     wallet,
     collectionId,
-    initIndex,
+    init,
+    createIndex,
     setCollectionId,
     AddDocument,
     getCollectionPrincipal,

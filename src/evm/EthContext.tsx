@@ -7,15 +7,7 @@ import React, {
 } from "react";
 import { ConnectedWallet, usePrivy, useWallets } from "@privy-io/react-auth";
 
-import {
-  createPublicClient,
-  encodeFunctionData,
-  fromBytes,
-  getAddress,
-  http,
-  toBytes,
-  toHex,
-} from "viem";
+import { createPublicClient, http } from "viem";
 import { baseSepolia } from "viem/chains";
 
 interface EthContextType {
@@ -44,15 +36,6 @@ export const Erc4337Provider: React.FC<{ children: ReactNode }> = ({
   const [isAccountModalOpen, setIsAccountModalOpen] = useState(false);
 
   const toggleAccountModal = () => setIsAccountModalOpen(!isAccountModalOpen);
-
-  async function accountClient(privyWallet: ConnectedWallet) {
-    if (!privyWallet) {
-      console.log("not privy embedded wallet found");
-      return;
-    }
-    const provider = await privyWallet.getEthersProvider();
-    const signer = provider?.getSigner() as any;
-  }
 
   const handleLogin = async () => {
     try {

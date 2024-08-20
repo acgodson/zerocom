@@ -1,9 +1,12 @@
 /* eslint-disable */
 import { createClient, http, defineChain } from "viem";
+import { hederaTestnet } from "viem/chains";
 import { createConfig } from "@privy-io/wagmi";
 
 export const privyConfig = {
   loginMethods: ["google", "email"],
+  defaultChain: hederaTestnet,
+  supportedChains: [hederaTestnet],
   appearance: {
     theme: "light",
     accentColor: "#676FFF",
@@ -15,25 +18,6 @@ export const privyConfig = {
   },
   walletConnectCloudProjectId: "957c795c4c86e7c46609c0cd4064fa00",
 };
-
-export const hederaTestnet = defineChain({
-  id: 88882,
-  name: "Chiliz Spicy Testnet",
-  nativeCurrency: {
-    decimals: 18,
-    name: "CHZ",
-    symbol: "CHZ",
-  },
-  rpcUrls: {
-    default: {
-      http: ["https://spicy-rpc.chiliz.com/ "],
-      webSocket: ["wss://spicy-rpc-ws.chiliz.com/"],
-    },
-  },
-  blockExplorers: {
-    default: { name: "Explorer", url: "https://testnet.chiliscan.com/" },
-  },
-});
 
 export const supportedChains = [hederaTestnet];
 

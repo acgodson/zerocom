@@ -8,13 +8,43 @@ import {
 
 import Overview from "../../components/organisms/overview";
 import NewAgent from "../../components/organisms/new-agent";
+import SignUp from "@/components/organisms/signup";
+import { useDBManager } from "@/rpc";
+import { usePrivy } from "@privy-io/react-auth";
 
 function Dashboard() {
+  const { user } = usePrivy();
   const [principal, setPrincipal] = useState<null | string>(null);
   const [onboard, setOnboard] = useState(false);
-  const [myProfile, setMyProfile] = useState<any>(null);
+  const [myAgent, setMyAgent] = useState<any>(null);
   const [tabIndex, setTabIndex] = useState(false);
   const toggleHome = () => setTabIndex(!tabIndex);
+  const actor = useDBManager();
+
+  async function checkProfile() {
+    const Controller_Address = process.env
+      .NEXT_PUBLIC_CONTROLLER_ADDRESS as `0x${string}`;
+    if (!Controller_Address) {
+      return;
+    }
+    try {
+      const x = await actor.init(Controller_Address);
+      if (x && x !== "0x0000000000000000000000000000000000000000") {
+        setOnboard(false);
+      } else {
+        setOnboard(true);
+      }
+      setMyAgent("");
+    } catch (e: any) {
+      console.log("found this error", e.message);
+    }
+  }
+
+  useEffect(() => {
+    if (user && !myAgent && !onboard) {
+      checkProfile();
+    }
+  }, [user, myAgent, onboard]);
 
   return (
     <>
@@ -33,6 +63,8 @@ function Dashboard() {
           </LayoutFooter>
         )}
       </DashboardWrapper>
+
+      <SignUp isOpen={onboard} toggleSignup={() => setOnboard(!onboard)} />
     </>
   );
 }
