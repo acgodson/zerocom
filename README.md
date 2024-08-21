@@ -1,3 +1,3 @@
 # Hi there 👋 Weclome to ZeroCom
 
-- [Demo](https://zerocom.xyz)
+- [Demo](https://www.zerocom.xyz)
