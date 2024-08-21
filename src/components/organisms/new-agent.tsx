@@ -39,7 +39,7 @@ function NewAgent({ toggleHome }: { toggleHome: () => void }) {
       file &&
       (file.type ===
         "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
-        file.name.endsWith(".xlsx"))
+        file.name.endsWith(".docs"))
     ) {
       const reader = new FileReader();
       reader.onload = (e: any) => {
@@ -57,62 +57,14 @@ function NewAgent({ toggleHome }: { toggleHome: () => void }) {
     onDrop,
     accept: {
       "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
-        [".xlsx", ".excel"],
+        [".docx", ".docs"],
     },
   });
 
-  const initializeAgent = async (agentAddr: `0x${string}`) => {
-    const token = process.env.NEXT_PUBLIC_TEST_TOKEN_ADDRESS as `0x${string}`;
-    if (!token) {
-      console.log("no token found");
-      return;
-    }
-    const ipns = await createIndex(agentAddr, token);
-    if (ipns) {
-      let headersList = {
-        "Content-Type": "application/json",
-      };
-
-      let bodyContent = JSON.stringify({
-        id: ipns.ipnsId,
-        name: ipns.ipnsName,
-      });
-
-      let response = await fetch("http://localhost:3000/api/ipns", {
-        method: "POST",
-        body: bodyContent,
-        headers: headersList,
-      });
-
-      let data = await response.json();
-      if (data) {
-        const id = data.id;
-        const wallet = wallets[0];
-        const provider = await wallet.getEthersProvider();
-        const AgentContract = new Contract(
-          agentAddr,
-          agentABI,
-          provider.getSigner()
-        );
-        console.log(toHex(id, { size: 32 }));
-        // agent Intitialize
-        let initAgent = await AgentContract.functions.initializeAgent(
-          token,
-          toHex(id, { size: 32 })
-        );
-        let initAgentTxn = await initAgent.wait();
-        let initAgentTxnHash = initAgentTxn.transactionHash;
-        console.log(`- https://hashscan.io/testnet/tx/${initAgentTxnHash}\n`);
-      }
-    }
-  };
-
+  // Function to add Documents to knowledge base
   const handleSubmit = async () => {
     setLoading(true);
     try {
-      await initializeAgent(
-        getAddress("0xf7B6132102eE614104ef9dF2A2509B059E32b5F6")
-      );
     } catch (e) {
       console.log(e);
       setLoading(false);
@@ -202,8 +154,8 @@ function NewAgent({ toggleHome }: { toggleHome: () => void }) {
                       <FileSpreadsheet className="opacity-70" />
                       <Text className="opacity-70">
                         {isDragActive
-                          ? "Drop CSV file here"
-                          : "Drop or click to upload CSV file"}
+                          ? "Drop docs here"
+                          : "Drop or click to upload docs file"}
                       </Text>
                     </div>
                   </div>

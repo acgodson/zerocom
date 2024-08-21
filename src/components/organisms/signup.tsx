@@ -28,7 +28,7 @@ import RadioCard from "../molecules/radio-card";
 import { byteCode } from "../../evm/agentBytecode";
 import agentABI from "../../evm/agent.json";
 import { hederaTestnet } from "viem/chains";
-import { createWalletClient, custom, getAddress } from "viem";
+import { createWalletClient, custom, getAddress, toHex } from "viem";
 import { getContractIdFromEvmAddress } from "@/evm/queries";
 import { useDBManager } from "@/rpc";
 
@@ -59,17 +59,17 @@ const SignUp = ({
     {
       id: "1",
       title: "Free",
-      description: "Cookbooks,  receipes, cooking instructions...",
+      description: "...",
     },
     {
       id: "2",
       title: "Pro",
-      description: "Meal plans, diet recommendations...",
+      description: "s...",
     },
     {
       id: "3",
       title: "Enterprise",
-      description: "Event planning, meal budgets...",
+      description: "s...",
     },
   ];
 
@@ -113,33 +113,49 @@ const SignUp = ({
   };
 
   const initializeAgent = async (agentAddr: `0x${string}`) => {
-    // 0xf7B6132102eE614104ef9dF2A2509B059E32b5F6
-    // const wallet = wallets[0];
-    // const agentId = await getContractIdFromEvmAddress(agentAddr);
-    const token = process.env.NEXT_PUBLIC_TEST_TOKEN_ADDRESS as string;
+    const token = process.env.NEXT_PUBLIC_TEST_TOKEN_ADDRESS as `0x${string}`;
     if (!token) {
       console.log("no token found");
       return;
     }
+    const ipns = await createIndex(agentAddr, token);
+    if (ipns) {
+      let headersList = {
+        "Content-Type": "application/json",
+      };
 
-    //create index and return  ipns name
-    // const ipnsName = "";
+      let bodyContent = JSON.stringify({
+        id: ipns.ipnsId,
+        name: ipns.ipnsName,
+      });
 
-    //   const AgentContract = new Contract(
-    //     agentAddr,
-    //     agentABI,
-    //     provider.getSigner()
-    //   );
+      let response = await fetch("http://www.zerocom.xyz/api/ipns", {
+        method: "POST",
+        body: bodyContent,
+        headers: headersList,
+      });
 
-    //   let initAgent = await AgentContract.functions.initializeAgent(
-    //     token,
-    //     ipnsName
-    //   );
-
-    //   let initAgentTxn = await initAgent.wait();
-    //   let initAgentTxnHash = initAgentTxn.transactionHash;
-    //   console.log(`\n- Transfer status: ${initAgentTxn.status}`);
-    //   console.log(`- https://hashscan.io/testnet/tx/${initAgentTxnHash}\n`);
+      let data = await response.json();
+      if (data) {
+        const id = data.id;
+        const wallet = wallets[0];
+        const provider = await wallet.getEthersProvider();
+        const AgentContract = new Contract(
+          agentAddr,
+          agentABI,
+          provider.getSigner()
+        );
+        console.log(toHex(id, { size: 32 }));
+        // agent Intitialize
+        let initAgent = await AgentContract.functions.initializeAgent(
+          token,
+          toHex(id, { size: 32 })
+        );
+        let initAgentTxn = await initAgent.wait();
+        let initAgentTxnHash = initAgentTxn.transactionHash;
+        console.log(`- https://hashscan.io/testnet/tx/${initAgentTxnHash}\n`);
+      }
+    }
   };
 
   const group = getRootProps();
@@ -269,19 +285,19 @@ const SignUp = ({
               bgClip="text"
               _hover={{
                 colorScheme: "red",
-                bgGradient: "linear(to-r, #D82B3C, #17101C)",
-                bgClip: false,
-                color: "white",
+                bgGradient: "linear(to-r, #17101C, #D82B3C)",
+                bgClip: "box",
+                // color: "white",
               }}
               _focus={{
-                bgGradient: "linear(to-r, #D82B3C, #17101C)",
+                bgGradient: "linear(to-r, #17101C, #D82B3C)",
                 bgClip: false,
-                color: "white",
+                // color: "white",
               }}
               _active={{
-                bgGradient: "linear(to-r, #D82B3C, #17101C)",
+                bgGradient: "linear(to-r, #17101C, #D82B3C)",
                 bgClip: false,
-                color: "white",
+                // color: "white",
               }}
               onClick={
                 !tabIndex ? () => settabIndex(tabIndex + 1) : handleSumbit

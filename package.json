@@ -37,7 +37,9 @@
     "firebase-admin": "^12.2.0",
     "@hashgraph/sdk": "2.31.0",
     "@ethersproject/contracts": "5.7.0",
-    "twilio": "^5.2.0"
+    "twilio": "^5.2.0",
+    "@ethersproject/providers": "5.7.2",
+    "@ethersproject/wallet": "5.7.0"
   },
   "devDependencies": {
     "@types/node": "^20",

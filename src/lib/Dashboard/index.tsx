@@ -11,14 +11,18 @@ import NewAgent from "../../components/organisms/new-agent";
 import SignUp from "@/components/organisms/signup";
 import { useDBManager } from "@/rpc";
 import { usePrivy } from "@privy-io/react-auth";
+import QueryInterface from "../Chat";
 
 function Dashboard() {
   const { user } = usePrivy();
   const [principal, setPrincipal] = useState<null | string>(null);
   const [onboard, setOnboard] = useState(false);
   const [myAgent, setMyAgent] = useState<any>(null);
-  const [tabIndex, setTabIndex] = useState(false);
+  const [tabIndex, setTabIndex] = useState(true);
+  const [isChat, setIsChat] = useState(true);
+
   const toggleHome = () => setTabIndex(!tabIndex);
+  const toggleChat = () => setIsChat(!isChat);
   const actor = useDBManager();
 
   async function checkProfile() {
@@ -48,18 +52,24 @@ function Dashboard() {
 
   return (
     <>
-      <DashboardWrapper>
+      <DashboardWrapper toggleHome={toggleChat}>
         <LayoutContent>
-          {tabIndex ? (
-            <Overview toggleHome={toggleHome} />
+          {isChat ? (
+            <QueryInterface ipnsId="" />
           ) : (
-            <NewAgent toggleHome={toggleHome} />
+            <>
+              {tabIndex ? (
+                <Overview toggleHome={toggleHome} />
+              ) : (
+                <NewAgent toggleHome={toggleHome} />
+              )}
+            </>
           )}
         </LayoutContent>
 
         {tabIndex && (
           <LayoutFooter>
-            <p>&copy; 2024 Zero Community</p>
+            <p>&copy; 2024 Zero</p>
           </LayoutFooter>
         )}
       </DashboardWrapper>

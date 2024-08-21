@@ -63,7 +63,7 @@ function Overview({ toggleHome }: { toggleHome: () => void }) {
           <Button
             variant="outline"
             className="cursor-pointer py-2"
-            onClick={() => copyToClipboard(`http://localhost:3000/${store}`)}
+            // onClick={() => copyToClipboard(`http://www.zerocom.xyz/${store}`)}
           >
             <CopyIcon />
             {copySuccess ? " Copied!" : ""}

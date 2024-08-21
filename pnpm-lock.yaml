@@ -26,6 +26,12 @@ dependencies:
   '@ethersproject/contracts':
     specifier: 5.7.0
     version: 5.7.0
+  '@ethersproject/providers':
+    specifier: 5.7.2
+    version: 5.7.2
+  '@ethersproject/wallet':
+    specifier: 5.7.0
+    version: 5.7.0
   '@hashgraph/sdk':
     specifier: 2.31.0
     version: 2.31.0

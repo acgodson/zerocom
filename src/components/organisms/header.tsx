@@ -39,17 +39,19 @@ const Header = ({ className }: { className?: string }) => {
     <div
       className={` flex justify-between items-center px-4 min-h-[70px] bg-transparent pr-8 ${className}`}
     >
-      <a className="flex space-x-2 text-md" target="_blank" href="#">
-        <img
-          className="mt-5 rounded-full opacity-100"
-          alt="zercom-logo"
-          src={"/vercel.svg"}
-          style={{
-            width: "auto",
-            height: "60px",
-          }}
-        />
-      </a>
+      <Box display={["none", "none", "block"]}>
+        <a className="flex space-x-2 text-md" target="_blank" href="#">
+          <img
+            className="mt-5 rounded-full opacity-100"
+            alt="zercom-logo"
+            src={"/vercel.svg"}
+            style={{
+              width: "auto",
+              height: "60px",
+            }}
+          />
+        </a>
+      </Box>
 
       {/* <NavGroup navs={navs} /> */}
 
