@@ -16,6 +16,8 @@ import {
   ModalOverlay,
   HStack,
   VStack,
+  InputGroup,
+  InputLeftAddon,
 } from "@chakra-ui/react";
 import { usePrivy } from "@privy-io/react-auth";
 import { ExternalLink } from "lucide-react";
@@ -63,8 +65,7 @@ export default function ProfileDialog() {
         />
         <ModalContent>
           <ModalHeader>
-            Profile
-            <Text color="#333">Overview</Text>
+            <Text color="#333">Profile</Text>
           </ModalHeader>
           <ModalCloseButton className="text-[#333]" />
 
@@ -81,7 +82,7 @@ export default function ProfileDialog() {
                         .filter((x) => x.type === "google_oauth")
                         .map((account, i) => (
                           <Box key={i}>
-                            <Text fontWeight="bold" textAlign="center">
+                            <Text fontWeight="bold" textAlign="left">
                               {account.name}
                             </Text>
                             <Text textAlign="center" fontWeight="bold">
@@ -99,21 +100,29 @@ export default function ProfileDialog() {
                 </Flex>
               </Box>
 
-              <Input
-                isReadOnly
-                value={id ?? ""}
-                variant="filled"
-                placeholder="Acount ID"
-              />
+              <InputGroup>
+                <InputLeftAddon>Account ID</InputLeftAddon>
+                <Input
+                  isReadOnly
+                  value={id ?? ""}
+                  variant="filled"
+                  placeholder="Acount ID"
+                />
+              </InputGroup>
 
-              <Input
-                isReadOnly
-                color={"#333"}
-                fontSize={"xs"}
-                value={address ? address : ""}
-                variant="filled"
-                placeholder="EVM Address"
-              />
+              <InputGroup>
+                <InputLeftAddon fontWeight="semibold" fontSize={"xs"}>
+                  EVM address
+                </InputLeftAddon>
+                <Input
+                  isReadOnly
+                  color={"#333"}
+                  fontSize={"xs"}
+                  value={address ? address : ""}
+                  variant="filled"
+                  placeholder="EVM Address"
+                />
+              </InputGroup>
             </Flex>
 
             <VStack mt={8} color="#333" w="100%">
@@ -124,50 +133,53 @@ export default function ProfileDialog() {
                 alignItems={"center"}
                 justifyContent={"space-between"}
               >
-                <Text fontSize={"sm"}>
+                <Text fontSize={["xs", "sm"]}>
                   {" "}
                   My Agent:<b> 0.00 tUSDC</b>
-                  <br />                     
-                  Budget:<b> 0.00</b>
                 </Text>
                 <Box>
                   <Button
-                    w="130px"
+                    w={["fit-content", "130px"]}
                     size="sm"
                     className="bg-zinc-900 text-white"
                     py={4}
+                    onClick={() => {}}
                   >
                     Top Up
                   </Button>
-
-                  <Button
-                    w="fit-content"
-                    size="sm"
-                    className="bg-zinc-900 text-white"
-                    py={4}
-                  >
-                    +
-                  </Button>
                 </Box>
               </Flex>
+              <br />
+              <Flex
+                alignItems={"center"}
+                display="flex"
+                w="full"
+                justifyContent={"space-between"}
+                fontSize={["xs", "sm"]}
+              >
+                <Text>
+                  Budget Cap:<b> 0.00</b>
+                </Text>
+                <Button
+                  w="fit-content"
+                  size="sm"
+                  className="bg-zinc-900 text-white"
+                  py={1}
+                >
+                  +
+                </Button>
+              </Flex>
+
               <Box px={3} mt={4} color="#333">
                 <Divider />
               </Box>
-
-              <Flex
-                w="100%"
-                alignItems={"center"}
-                justifyContent={"space-between"}
-              >
-                <Text fontSize={"sm"}>{/* ℏ: <b> 0.00</b>{" "} */}</Text>
-                <Button w="160px" py={4} rightIcon={<ExternalLink />}>
-                  ℏ Faucet
-                </Button>
-              </Flex>
             </VStack>
           </ModalBody>
 
-          <ModalFooter>
+          <ModalFooter w="full" justifyContent="space-between">
+            <Button w="160px" py={4} rightIcon={<ExternalLink />}>
+              ℏ Faucet
+            </Button>
             <Button colorScheme="red" onClick={handleLogout}>
               Log out
             </Button>

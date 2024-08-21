@@ -1,3 +1,4 @@
+import { Contract } from "@ethersproject/contracts";
 import {
   TransactionRecordQuery,
   TokenInfoQuery,
@@ -7,6 +8,9 @@ import {
   ContractInfo,
   Hbar,
 } from "@hashgraph/sdk";
+import axios from "axios";
+import { keccak256, toHex } from "viem";
+import lighthouse from "@lighthouse-web3/sdk";
 
 export async function txRecQueryFcn(txId: any, client: any) {
   const recQuery = await new TransactionRecordQuery()
@@ -101,13 +105,6 @@ export async function getAccountIdFromEvmAddress(evmAddress: string) {
   }
 }
 
-// tokenId,
-// accountId,
-// agentId,
-// Number(amount),
-// accountKey,
-// client
-
 export async function transferFtFcn(
   tId: any,
   senderId: any,
@@ -158,4 +155,112 @@ export async function trfHBar(senderId: any, senderKey: any, client: any) {
   await new Promise((resolve) => setTimeout(resolve, 4000));
 
   return [transactionReceipt.status.toString()];
+}
+
+export async function fetchQueryResponse(
+  controllerContract: Contract,
+  agentAddress: `0x${string}`,
+  sms: any,
+  phone: any,
+  apiKey: string
+) {
+  // Step 1: Generate the idempotency key using the smart contract
+  const requestHash = keccak256(toHex(sms));
+  const operationType = 1; //demo fixed
+  const fixedNounce = phone;
+
+  // Generate the idempotency key
+  const generateKeyTx =
+    await controllerContract.functions.generateIdempotencyKey(
+      agentAddress,
+      requestHash,
+      operationType,
+      fixedNounce
+    );
+
+  // Wait for the transaction to be mined
+  await generateKeyTx.wait();
+  // retrieve generated key
+  const activeKey = await controllerContract.functions.getKeyByRequestHash(
+    requestHash
+  );
+  console.log("Generated  Key:", activeKey[0]);
+
+  try {
+    //generate new dempotency key with hash of request
+    let headersList = {
+      "idempotency-key": activeKey[0],
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    };
+
+    let bodyContent = JSON.stringify({
+      prompt: sms,
+      context: "",
+    });
+
+    let response = await fetch("https://blueband-db-442d8.web.app/api/query", {
+      method: "POST",
+      body: bodyContent,
+      headers: headersList,
+    });
+
+    let data = await response.json();
+    console.log(data);
+    return data;
+
+    // if (data) {
+    //   // process the ipotency key
+    // }
+  } catch (e) {
+    console.log(e);
+  }
+}
+
+export async function recordChat(
+  agentRecord: string,
+  smsBody: string,
+  smsResponse: string
+) {
+  try {
+    const allKeys = await lighthouse.getAllKeys(
+      process.env.LIGHTHOUSE_API_KEY as string
+    );
+    const filter = allKeys.data.find(
+      (x) => x.ipnsId === agentRecord.toString()
+    );
+    // const filter = allKeys.data[allKeys.data.length - 2];
+    const ipnsKey = filter?.ipnsName;
+    let history = [];
+
+    const url = `https://gateway.lighthouse.storage/ipns/${agentRecord.toString()}`;
+    const response = await axios.get(url);
+    const data = await response.data;
+    if (data) {
+      console.log("Exisitng session retrieved from: ", url);
+      history = data.data;
+    }
+
+    console.log("ipnsKey", ipnsKey);
+
+    const messages = [
+      ...history,
+      { human_message: smsBody, ai_message: smsResponse },
+    ];
+
+    const response2 = await lighthouse.uploadText(
+      JSON.stringify({ data: [...messages] }),
+      process.env.LIGHTHOUSE_API_KEY as string
+    );
+
+    const pubResponse2 = await lighthouse.publishRecord(
+      response2.data.Hash,
+      ipnsKey as string,
+      process.env.LIGHTHOUSE_API_KEY as string
+    );
+
+    return pubResponse2;
+  } catch (error: any) {
+    console.log(error);
+  }
 }

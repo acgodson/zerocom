@@ -1,5 +1,5 @@
 import { LocalDocumentIndex } from "./LocalDocumentIndex";
-import lighthouse from "@lighthouse-web3/sdk";
+// import lighthouse from "@lighthouse-web3/sdk";
 
 export class VectorDB {
   private collectionId: `0x${string}`;

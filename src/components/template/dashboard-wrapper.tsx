@@ -7,6 +7,7 @@ import {
   ListItem,
   Text,
   UnorderedList,
+  Button,
 } from "@chakra-ui/react";
 import {
   BookIcon,
@@ -16,6 +17,7 @@ import {
   List,
   ListIcon,
   MenuIcon,
+  MessageCircle,
 } from "lucide-react";
 import AuroraBackground from "../atoms/aurora-background";
 
@@ -62,6 +64,16 @@ const LayoutLeftPanel = ({
           </button>
 
           <Box className="flex-grow overflow-hidden">
+            <Button
+              display={["block", "none", "none"]}
+              onClick={toggleDrawer}
+              className="p-2"
+              mb={2}
+              fontSize="lg"
+              color="red.500"
+            >
+              X
+            </Button>
             <Card>
               {" "}
               <UnorderedList alignItems="center">
@@ -97,7 +109,13 @@ const LayoutFooter = ({ children }: { children: React.ReactNode }) => {
 };
 
 // DashboardWrapper Component
-const DashboardWrapper = ({ children }: { children: React.ReactNode }) => {
+const DashboardWrapper = ({
+  children,
+  toggleHome,
+}: {
+  children: React.ReactNode;
+  toggleHome: () => void;
+}) => {
   const [isDrawerOpen, setDrawerOpen] = useState(false);
 
   const toggleDrawer = () => {
@@ -113,7 +131,24 @@ const DashboardWrapper = ({ children }: { children: React.ReactNode }) => {
             <LayoutLeftPanel
               isOpen={isDrawerOpen}
               toggleDrawer={toggleDrawer}
-              items={[<div key="1">Home</div>, <div key="2">Documents</div>]}
+              items={[
+                <Button
+                  leftIcon={<MessageCircle />}
+                  className="my-3 w-full"
+                  key="2"
+                  onClick={toggleHome}
+                >
+                  {isDrawerOpen ? "Live" : "Live"}
+                </Button>,
+                <Button
+                  onClick={toggleHome}
+                  leftIcon={<ListIcon />}
+                  className="my-3 w-full"
+                  key="1"
+                >
+                  {isDrawerOpen ? "Documents" : "Documents"}
+                </Button>,
+              ]}
             />
             <LayoutContent>{children}</LayoutContent>
           </div>
