@@ -78,25 +78,6 @@ export const useDBManager = () => {
 
     console.log("cc: ", keyResponse.data.ipnsId);
     return keyResponse.data;
-
-    // const provider = await wallet.getEthereumProvider();
-    // const data = encodeFunctionData({
-    //   abi: agentABI,
-    //   functionName: "initializeAgent",
-    //   args: [tokenAddress, ipnsAddress],
-    // });
-
-    // const txn = {
-    //   data,
-    //   to: initialCollectionId,
-    //   from: wallet.address,
-    // };
-
-    // const result = await provider.request({
-    //   method: "eth_sendTransaction",
-    //   params: [txn],
-    // });
-    // console.log(result);
   };
 
   const AddDocument = async (title: string, content: string) => {

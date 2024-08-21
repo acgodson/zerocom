@@ -127,10 +127,28 @@ export default function ProfileDialog() {
                 <Text fontSize={"sm"}>
                   {" "}
                   My Agent:<b> 0.00 tUSDC</b>
+                  <br />                     
+                  Budget:<b> 0.00</b>
                 </Text>
-                <Button w="160px" className="bg-zinc-900 text-white" py={4}>
-                  Top Up
-                </Button>
+                <Box>
+                  <Button
+                    w="130px"
+                    size="sm"
+                    className="bg-zinc-900 text-white"
+                    py={4}
+                  >
+                    Top Up
+                  </Button>
+
+                  <Button
+                    w="fit-content"
+                    size="sm"
+                    className="bg-zinc-900 text-white"
+                    py={4}
+                  >
+                    +
+                  </Button>
+                </Box>
               </Flex>
               <Box px={3} mt={4} color="#333">
                 <Divider />
@@ -149,7 +167,7 @@ export default function ProfileDialog() {
             </VStack>
           </ModalBody>
 
-          <ModalFooter >
+          <ModalFooter>
             <Button colorScheme="red" onClick={handleLogout}>
               Log out
             </Button>
