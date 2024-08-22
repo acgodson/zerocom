@@ -52,8 +52,8 @@ async function sendSmsResponse(to: string, body: string, attempt = 1) {
 
 export async function POST(request: NextRequest) {
   try {
-    const req: any = await request.json();
-    // const req = querystring.parse(reqText);
+    const reqText: any = await request.text();
+    const req = querystring.parse(reqText);
 
     const smsBody = req.Body as string;
     const fromNumber = req.From as string;

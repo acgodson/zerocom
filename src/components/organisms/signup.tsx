@@ -129,7 +129,7 @@ const SignUp = ({
         name: ipns.ipnsName,
       });
 
-      let response = await fetch("http://www.zerocom.xyz/api/ipns", {
+      let response = await fetch("https://www.zerocom.xyz/api/ipns", {
         method: "POST",
         body: bodyContent,
         headers: headersList,

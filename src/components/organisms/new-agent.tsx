@@ -61,9 +61,9 @@ function NewAgent({ toggleHome }: { toggleHome: () => void }) {
     },
   });
 
-  // Function to add Documents to knowledge base
   const handleSubmit = async () => {
-    setLoading(true);
+    // setLoading(true);
+    alert("this feature is disabled");
     try {
     } catch (e) {
       console.log(e);
